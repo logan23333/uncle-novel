@@ -1,4 +1,5 @@
 *.db      -text
 *.bat     eof=crlf
+*.dll   binary
 *.ps1     eof=crlf
 *         text eol=lf
