@@ -18,7 +18,6 @@ import com.unclezs.gui.utils.NodeUtil;
 import com.unclezs.gui.utils.ResourceUtil;
 import com.unclezs.gui.utils.ToolTipUtil;
 import com.unclezs.gui.utils.TrayUtil;
-import com.unclezs.utils.ApiUtil;
 import fxlauncher.UpdateInfo;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -140,7 +139,6 @@ public class App extends Application {
         showAnn.setOnFinished(e -> contentContainer.requestFocus());
         mainStage.show();
         //用户量统计
-        ApiUtil.userAdd();
         contentContainer.requestFocus();
         stage.setOnShowing(e -> {
             Platform.setImplicitExit(true);
