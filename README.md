@@ -95,9 +95,6 @@
 
 如果您觉得不错，希望能点个Star！
 
-- [蓝奏云](https://uncle.lanzous.com/b0ibxcpe)
-- [百度云 密码: hqf5](https://pan.baidu.com/s/10NAn5lCQv7ObQ2MkkVtAAg)
-- [github release](https://github.com/unclezs/NovelHarvester/releases)
 - QQ群文件：774716671
 - 欢迎关注公众号【书虫无书荒】获取最新资讯及使用教程，不过没时间搞哈哈
 

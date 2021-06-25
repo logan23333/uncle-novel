@@ -48,7 +48,6 @@ public class TrayUtil {
                 System.exit(0);
             });
             PopupMenu popupMenu = new PopupMenu();
-            trayIcon.setPopupMenu(popupMenu);
             MenuItem show = new MenuItem("show");
             show.addActionListener(e -> {
                 Platform.runLater(() -> {

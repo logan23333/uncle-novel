@@ -32,7 +32,6 @@ public class ApplicationConfig implements Serializable {
      * 系统设置
      */
     private Setting setting = new Setting();
-
     /**
      * 主题
      */

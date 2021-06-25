@@ -7,13 +7,16 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpRequest;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.unclezs.constrant.Charsets;
-import com.unclezs.crawl.special.Po18;
 import com.unclezs.enmu.SearchKeyType;
 import com.unclezs.model.AnalysisConfig;
 import com.unclezs.model.Chapter;
 import com.unclezs.model.NovelInfo;
 import com.unclezs.model.rule.SearchTextRule;
-import com.unclezs.utils.*;
+import com.unclezs.utils.CharacterUtil;
+import com.unclezs.utils.RequestUtil;
+import com.unclezs.utils.TextUtil;
+import com.unclezs.utils.UrlUtil;
+import com.unclezs.utils.XpathUtil;
 import com.unclezs.utils.comparator.ChapterComparator;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -30,7 +33,12 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -89,6 +97,22 @@ public class TextNovelSpider implements Serializable, NovelSpider {
         this.config = config;
     }
 
+    /**
+     * 获取封面
+     *
+     * @param title 小说名称
+     * @return cover url
+     * @throws Exception /
+     */
+    public static String getCover(String title) throws Exception {
+        Document doc = RequestUtil.doc("https://www.qidian.com/search?kw=" + URLEncoder.encode(title, Charsets.UTF8));
+        String cover = XpathUtil.xpath(doc, "//*[@id=\"result-list\"]/div/ul/li[1]/div[1]/a/img/@abs:src");
+        if (UrlUtil.isHttpUrl(cover)) {
+            return cover;
+        } else {
+            throw new RuntimeException();
+        }
+    }
 
     /**
      * 搜索
@@ -248,14 +272,9 @@ public class TextNovelSpider implements Serializable, NovelSpider {
     }
 
     public String content(String url) throws IOException {
-        if (isSpecialSite(url)) {
-            return specialSiteContent(url);
-        } else {
-            String html = RequestUtil.get(url, config.getCookies().get(), config.getUserAgent().get(), null);
-            return contentByHtml(html);
-        }
+        String html = RequestUtil.get(url, config.getCookies().get(), config.getUserAgent().get(), null);
+        return contentByHtml(html);
     }
-
 
     /**
      * 章节目录抓取
@@ -288,7 +307,6 @@ public class TextNovelSpider implements Serializable, NovelSpider {
         return chapters;
     }
 
-
     /**
      * 章节目录抓取
      *
@@ -297,12 +315,8 @@ public class TextNovelSpider implements Serializable, NovelSpider {
      * @throws IOException /
      */
     public List<Chapter> chapters(String url) throws IOException {
-        if (isSpecialSite(url)) {
-            return specialSiteChapters(url);
-        } else {
-            String html = RequestUtil.get(url, config.getCookies().get(), config.getUserAgent().get(), null);
-            return chaptersByHtml(html, url);
-        }
+        String html = RequestUtil.get(url, config.getCookies().get(), config.getUserAgent().get(), null);
+        return chaptersByHtml(html, url);
     }
 
     /**
@@ -382,64 +396,5 @@ public class TextNovelSpider implements Serializable, NovelSpider {
                 existLinks.add(href);
             }
         });
-    }
-
-    /**
-     * 获取封面
-     *
-     * @param title 小说名称
-     * @return cover url
-     * @throws Exception /
-     */
-    public static String getCover(String title) throws Exception {
-        Document doc = RequestUtil.doc("https://www.qidian.com/search?kw=" + URLEncoder.encode(title, Charsets.UTF8));
-        String cover = XpathUtil.xpath(doc, "//*[@id=\"result-list\"]/div/ul/li[1]/div[1]/a/img/@abs:src");
-        if (UrlUtil.isHttpUrl(cover)) {
-            return cover;
-        } else {
-            throw new RuntimeException();
-        }
-    }
-
-    /**
-     * 特殊网站正文抓取
-     *
-     * @return /
-     */
-    public String specialSiteContent(String url) throws IOException {
-        String site = UrlUtil.getSite(url);
-        if ("po18".equals(site)) {
-            return Po18.content(url, config.getCookies().get().trim());
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * 特殊网站正文抓取
-     *
-     * @return /
-     */
-    @SuppressWarnings("unchecked")
-    private List<Chapter> specialSiteChapters(String url) throws IOException {
-        String site = UrlUtil.getSite(url);
-        if ("po18".equals(site)) {
-            Dict chapters = Po18.chapters(url, config.getCookies().get());
-            this.title = chapters.getStr("title");
-            return (List<Chapter>) chapters.get("chapters");
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * 是否为特殊站点
-     *
-     * @param url 站点URL
-     * @return /
-     */
-    public boolean isSpecialSite(String url) {
-        String site = UrlUtil.getSite(url);
-        return specialSite.contains(site);
     }
 }

@@ -160,7 +160,6 @@ public class BookShelfController implements LifeCycleFxController {
             bookPane.getChildren().setAll(task.getValue());
             bookPane.requestLayout();
             //显示更新内容
-            App.showWhatNew();
             log.info("书架查库耗时：{}ms", (System.currentTimeMillis() - l));
         });
         //完成后设置内容

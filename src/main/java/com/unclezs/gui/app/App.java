@@ -1,15 +1,24 @@
 package com.unclezs.gui.app;
 
 import cn.hutool.core.thread.ThreadUtil;
+import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXPopup;
 import com.unclezs.gui.animation.ScaleLargeTransition;
 import com.unclezs.gui.components.StageDecorator;
 import com.unclezs.gui.controller.IndexController;
 import com.unclezs.gui.controller.components.SettingMenuController;
 import com.unclezs.gui.controller.components.ThemeController;
-import com.unclezs.gui.utils.*;
+import com.unclezs.gui.utils.AlertUtil;
+import com.unclezs.gui.utils.ApplicationUtil;
+import com.unclezs.gui.utils.ContentUtil;
+import com.unclezs.gui.utils.DataManager;
+import com.unclezs.gui.utils.DesktopUtil;
+import com.unclezs.gui.utils.HotKeyUtil;
+import com.unclezs.gui.utils.NodeUtil;
+import com.unclezs.gui.utils.ResourceUtil;
+import com.unclezs.gui.utils.ToolTipUtil;
+import com.unclezs.gui.utils.TrayUtil;
 import com.unclezs.utils.ApiUtil;
-import com.unclezs.utils.RequestUtil;
 import fxlauncher.UpdateInfo;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -41,16 +50,49 @@ public class App extends Application {
      * 版本信息
      */
     public static UpdateInfo versionInfo;
-    private ScaleLargeTransition showAnn;
     public static Stage stage;
     public static StageDecorator root;
     public static StackPane background;
     public static BorderPane contentContainer;
     private static JFXPopup settingPopup;
+    private ScaleLargeTransition showAnn;
     private VBox themePage;
 
     public static void main(String[] args) {
         launch(args);
+    }
+
+    /**
+     * TODO
+     * 去除强制弹窗在此
+     * <p>
+     * 显示更新内容
+     */
+    public static void showWhatNew() {
+        ScrollPane updatePane = new ScrollPane();
+        updatePane.getStyleClass().add("update-scroll");
+        updatePane.setFitToWidth(true);
+        Label content = new Label();
+        String whatNew = "1.更新至V5.0，需重新下载" + "\r\n" +
+            "2.同时发布安卓版V3.0" + "\r\n" +
+            "3.前往公众号【书虫无书荒】下载最新版本" + "\r\n" +
+            "4.此版本不再维护，停止使用，如需继续使用请自行编译去除此弹窗。" + "\r\n";
+        content.setText(whatNew);
+        updatePane.setContent(content);
+        content.getStyleClass().add("what-new");
+        JFXButton goDownload = new JFXButton("去下载");
+        AlertUtil.alert(String.format("%s 更新内容", "4.99"), goDownload, updatePane);
+        JFXButton exit = new JFXButton("退出");
+        AlertUtil.layout.getActions().add(exit);
+        exit.setOnAction(e -> System.exit(0));
+        goDownload.setOnAction(e -> DesktopUtil.openBrowse("https://t.1yb.co/tDxv"));
+    }
+
+    /**
+     * 关闭设置
+     */
+    public static void closeSetting() {
+        settingPopup.hide();
     }
 
     @Override
@@ -107,34 +149,13 @@ public class App extends Application {
             showAnn.play();
             contentContainer.requestFocus();
         });
+        App.showWhatNew();
         //注册VM退出监听，保存数据
         Runtime.getRuntime().addShutdownHook(ThreadUtil.newThread(() -> {
             //注销热键
             HotKeyUtil.unbind();
             ApplicationUtil.storeConfig();
         }, "uncle exit store thread"));
-    }
-
-    /**
-     * 显示更新内容
-     */
-    public static void showWhatNew() {
-        Object userData = stage.getUserData();
-        if (userData != null) {
-            versionInfo = (UpdateInfo) userData;
-            //是否更新了
-            Boolean update = versionInfo.getUpdate();
-            if (Boolean.TRUE.equals(update)) {
-                ScrollPane updatePane = new ScrollPane();
-                updatePane.getStyleClass().add("update-scroll");
-                updatePane.setFitToWidth(true);
-                Label content = new Label();
-                content.setText(versionInfo.getWhatNew());
-                updatePane.setContent(content);
-                content.getStyleClass().add("what-new");
-                AlertUtil.alert(String.format("%s 更新内容", versionInfo.getVersion()), updatePane);
-            }
-        }
     }
 
     /**
@@ -205,12 +226,5 @@ public class App extends Application {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    /**
-     * 关闭设置
-     */
-    public static void closeSetting() {
-        settingPopup.hide();
     }
 }
