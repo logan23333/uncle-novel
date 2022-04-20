@@ -57,5 +57,6 @@ Uncle 小说是一款桌面端的小说阅读器，支持有声小说在线收�
 
 ### 喝杯咖啡~
 
-請到github.com/unclezs/uncle-novel支持作者。謝謝。
+請到<a href="https://github.com/unclezs/uncle-novel/">github.com/unclezs/uncle-novel</a>支持作者。謝謝。
+
 
